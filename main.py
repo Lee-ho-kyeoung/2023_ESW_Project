@@ -3,6 +3,7 @@ from Joystick import Joystick
 from Arm import Arm
 from Bullet import Bullet
 from Wall import Wall
+from Enemy import Enemy
 
 def main():
     joystick = Joystick()
@@ -10,6 +11,12 @@ def main():
     joystick.disp.image(backGround_image)
 
     walls = [Wall((0,244), (239, 239), 240, 16), Wall((196, 135), (239, 150), 44, 16)]
+
+    enemy_image_path = "2023_ESW_Project/image/Enemy.png"
+    enemy_1 = Enemy((230, 101), enemy_image_path)
+    enemy_2 = Enemy((230, 190), enemy_image_path)
+
+    enemys_list = [enemy_1, enemy_2]
 
     arm_image_path = "2023_ESW_Project/image/Arm.png"  # 총 이미지의 파일 경로
     arm = Arm(arm_image_path)         # Gun 객체 생성
@@ -44,9 +51,16 @@ def main():
 
         new_backGround_image = backGround_image.copy()
 
-        arm.draw(new_backGround_image, (-16, 171))  # 팔을 항상 그림
+        arm.draw(new_backGround_image)  # 팔을 항상 그림
+
+        for enemy in enemys_list:
+            if enemy.state != 'die':
+                enemy.draw(new_backGround_image)
+            else:
+                enemys_list.remove(enemy)
 
         if bullet is not None:
+            bullet.collision_check(enemys_list)
             bullet.update_bullet(new_backGround_image)
             """
             for wall in walls:
