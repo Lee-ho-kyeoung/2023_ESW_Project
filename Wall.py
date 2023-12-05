@@ -6,11 +6,9 @@ def distance(point1, point2):
     return math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
 
 class Wall:
-    def __init__(self, leftUp, rightDown, width, height):
+    def __init__(self, leftUp, rightDown):
         self.leftUp = leftUp  # 왼쪽 상단 좌표
         self.rightDown = rightDown  # 오른쪽 하단 좌표
-        self.width = width  # 벽의 너비
-        self.height = height  # 벽의 높이
 
     def check_collision(self, bullet):
         bullet_x = bullet.position[0]
@@ -25,16 +23,21 @@ class Wall:
         next_bullet_x = bullet_x + delta_x
         next_bullet_y = bullet_y - delta_y  # y 값은 반대로 해야 합니다.
 
-        y_plus = (next_bullet_y - bullet_y) / (next_bullet_x - bullet_x)
-
         points = [] # 전 과 후를 잇는 선 위에 있는 점들의 모임
 
-        y_point = bullet_y # x좌표를 기준으로 할 것이기 때문에, y점은 실수 값이 나옴
-
-        
-        for x_point in range(min(round(bullet_x), round(next_bullet_x)), max(round(bullet_x), round(next_bullet_x)) + 1):
-            points.append((x_point, round(y_point)))
-            y_point += y_plus
+        # x 편차가 y 편차보다 크다면
+        if abs(next_bullet_y - bullet_y) < abs(next_bullet_x - bullet_x):
+            y_plus = (next_bullet_y - bullet_y) / abs(next_bullet_x - bullet_x)
+            y_point = bullet_y # x좌표를 기준으로 할 것이기 때문에, y점은 실수 값이 나옴
+            for x_point in range(min(int(bullet_x), int(next_bullet_x)), max(int(bullet_x), int(next_bullet_x)) + 1):
+                points.append((x_point, int(y_point)))
+                y_point += y_plus
+        else:
+            x_plus = (next_bullet_x - bullet_x) / abs(next_bullet_y - bullet_y)
+            x_point = bullet_x # x좌표를 기준으로 할 것이기 때문에, y점은 실수 값이 나옴
+            for y_point in range(min(int(bullet_y), int(next_bullet_y)), max(int(bullet_y), int(next_bullet_y)) + 1):
+                points.append((int(x_point), y_point))
+                x_point += x_plus
 
         # 벽의 좌표를 가져옵니다.
         wall_left, wall_top = self.leftUp
@@ -57,16 +60,18 @@ class Wall:
             if point in left_points:
                 print("양옆 충돌")
                 bullet.angle = 180 - bullet_angle  # 총알의 이동 방향을 반대로 설정합니다.
-                break
+                return True
             if point in right_points:
                 print("양옆 충돌")
                 bullet.angle = 180 - bullet_angle  # 총알의 이동 방향을 반대로 설정합니다.
-                break
+                return True
             if point in top_points:
                 print("위 아래 충돌")
                 bullet.angle = -bullet_angle  # 총알의 이동 방향을 반대로 설정합니다.
-                break
+                return True
             if point in bottom_points:
                 print("위 아래 충돌")
                 bullet.angle = -bullet_angle  # 총알의 이동 방향을 반대로 설정합니다.
-                break
+                return True
+            
+        return False

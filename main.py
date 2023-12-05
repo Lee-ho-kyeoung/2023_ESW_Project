@@ -1,82 +1,52 @@
 from PIL import Image, ImageDraw
 from Joystick import Joystick
-from Arm import Arm
-from Bullet import Bullet
-from Wall import Wall
-from Enemy import Enemy
+import time
+from stage1 import stage1
+from stage2 import stage2
 
 def main():
     joystick = Joystick()
-    backGround_image = Image.open("2023_ESW_Project/image/Stage1.png")  # 게임 배경 이미지
-    joystick.disp.image(backGround_image)
+    my_image = Image.new("RGB", (joystick.width, joystick.height)) # 도화지!
+    text_color = (255, 255, 255)  # 텍스트 색상 설정
+    text_position = (93, 115)    # 텍스트 위치 설정
+    draw = ImageDraw.Draw(my_image)
 
-    walls = []
-    walls.append(Wall((0,224), (240, 240), 240, 16))
-    walls.append(Wall((196, 135), (239, 150), 44, 16))
+    sequence = 1 # 게임 순서
 
-    enemy_image_path = "2023_ESW_Project/image/Enemy.png"
-    enemy_1 = Enemy((230, 101), enemy_image_path)
-    enemy_2 = Enemy((230, 190), enemy_image_path)
+    total_score = 0 # 총점 초기화
 
-    enemys_list = [enemy_1, enemy_2]
+    while True: 
+        if(sequence == 0): # 게임 오버
+            draw.rectangle((0, 0, 240, 240), fill = '#000000')
+            draw.text(text_position, "Game Over", fill=text_color)
+            joystick.disp.image(my_image)  # 디스플레이에 이미지 업데이트
 
-    arm_image_path = "2023_ESW_Project/image/Arm.png"  # 총 이미지의 파일 경로
-    arm = Arm(arm_image_path)         # Gun 객체 생성
+        if(sequence == 1): # 게임 시작
+            draw.text(text_position, "Game Start", fill=text_color)
+            joystick.disp.image(my_image)  # 디스플레이에 이미지 업데이트
+            time.sleep(3)
+            sequence += 1
 
-    bullet = None  # 초기에는 총알이 없음을 나타내는 변수
+        elif(sequence == 2): # Stage1
+            total_score += stage1()
 
-    initial_bullet_count = 5           # 초기 총알 개수 설정
-    score = 10                         # 점수 초기화
+            if(total_score == 0):
+                sequence = 0
+            sequence = 3
 
-    while True:
-        command = {'up_pressed': False , 'down_pressed': False}
-        
-        if not joystick.button_U.value:  # up pressed
-            command['up_pressed'] = True
-            if arm.angle < 90:           # 90도가 최대
-                arm.aim(arm.angle + 5)   # 5도씩 증가시킴
+        elif(sequence == 3): # Stage2
+            total_score += stage2()
 
-        if not joystick.button_D.value:  # down pressed
-            command['down_pressed'] = True
-            if arm.angle > -90:          # -90도가 최대
-                arm.aim(arm.angle - 5)   # 5도씩 감소시킴
-        
-        if not joystick.button_A.value:  # A pressed
-            if initial_bullet_count < 0:
-                break
+            if(total_score == 0):
+                sequence = 0
+            sequence += 1
 
-            if bullet is None:  # 발사된 총알이 없을 때만 발사 가능
-                bullet = Bullet("2023_ESW_Project/image/Bullet.png")  
-                bullet.shoot(arm)
-                initial_bullet_count -= 1  # 총알이 발사될 때마다 초기 총알 개수 감소
-                score -= 1  # 총알이 발사될 때마다 점수 감소
-
-        new_backGround_image = backGround_image.copy()
-
-        arm.draw(new_backGround_image)  # 팔을 항상 그림
-
-        for enemy in enemys_list:
-            if enemy.state != 'die':
-                enemy.draw(new_backGround_image)
-            else:
-                enemys_list.remove(enemy)
-
-        if bullet is not None:
-            bullet.collision_check(enemys_list)
-            bullet.update_bullet(new_backGround_image)
-            
-            for wall in walls:
-                if wall.check_collision(bullet):  # 벽과 충돌 확인
-                    bullet.lifespan -= 1
-            
-            if not bullet.active:  # 총알이 없어지면 다음 발사를 위해 변수 초기화
-                bullet = None
-
-        # 화면의 일부분만 업데이트
-        joystick.disp.image(new_backGround_image) 
-        
-    # 점수 표시 (예: 콘솔에 출력)
-    print("Score:", score)
+        elif(sequence == 4): # 게임 클리어
+            draw.rectangle((0, 0, 240, 240), fill = '#000000')
+            draw.text(text_position, "Game Clear", fill=text_color)
+            draw.text((73, 125), "Total Score: " + str(total_score), fill=text_color) # 총점 출력
+            joystick.disp.image(my_image)  # 디스플레이에 이미지 업데이트
+            return
 
 if __name__ == '__main__':
     main()

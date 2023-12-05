@@ -25,15 +25,6 @@ class Bullet:
         # 현재 위치에 변화량을 더하여 새로운 위치 계산
         new_x = self.position[0] + delta_x
         new_y = self.position[1] - delta_y  # y 값은 반대로 해야 합니다.
-        
-        # 화면 경계에 도달했는지 확인하여 충돌 처리
-        if new_x <= 0 or new_x >= 239:
-            self.angle = 180 - self.angle  # 수평 방향 반사 처리
-            self.lifespan -= 1
-        
-        if new_y <= 0 or new_y >= 239:
-            self.angle = -self.angle  # 수직 방향 반사 처리
-            self.lifespan -= 1
 
         # 새로운 위치로 업데이트
         self.position = (int(new_x), int(new_y))
@@ -45,12 +36,13 @@ class Bullet:
 
     def update_bullet(self, backGround_image):
         if self.active:
-            self.move()  # 총알을 이동시킴
-            self.draw(backGround_image, self.position)  # 새로운 위치에 총알 그림
             if self.lifespan <= 0:
                 self.active = False  # 총알 수명이 다하면 비활성화
-###
-    def collision_check(self, enemys):
+            else:
+                self.move()  # 총알을 이동시킴
+                self.draw(backGround_image, self.position)  # 새로운 위치에 총알 그림
+            
+    def enemy_collision_check(self, enemys):
         for enemy in enemys:
 
             # (x1, y1, x2, y2) 형식의 튜플로 변환하여 충돌을 확인합니다
@@ -70,7 +62,6 @@ class Bullet:
             collision = self.overlap(bullet_position, enemy_position)
             
             if collision:
-                self.state = 'hit'
                 enemy.state = 'die'
 
     def overlap(self, ego_position, other_position):
