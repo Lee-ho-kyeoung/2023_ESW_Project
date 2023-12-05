@@ -10,7 +10,9 @@ def main():
     backGround_image = Image.open("2023_ESW_Project/image/Stage1.png")  # 게임 배경 이미지
     joystick.disp.image(backGround_image)
 
-    walls = [Wall((0,244), (239, 239), 240, 16), Wall((196, 135), (239, 150), 44, 16)]
+    walls = []
+    walls.append(Wall((0,224), (240, 240), 240, 16))
+    walls.append(Wall((196, 135), (239, 150), 44, 16))
 
     enemy_image_path = "2023_ESW_Project/image/Enemy.png"
     enemy_1 = Enemy((230, 101), enemy_image_path)
@@ -62,11 +64,11 @@ def main():
         if bullet is not None:
             bullet.collision_check(enemys_list)
             bullet.update_bullet(new_backGround_image)
-            """
+            
             for wall in walls:
                 if wall.check_collision(bullet):  # 벽과 충돌 확인
                     bullet.lifespan -= 1
-            """
+            
             if not bullet.active:  # 총알이 없어지면 다음 발사를 위해 변수 초기화
                 bullet = None
 
