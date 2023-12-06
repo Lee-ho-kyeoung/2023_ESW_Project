@@ -58,19 +58,19 @@ class Wall:
 
         for point in points:
             if point in left_points:
-                print("양옆 충돌")
+                print("왼쪽 벽 충돌")
                 bullet.angle = 180 - bullet_angle  # 총알의 이동 방향을 반대로 설정합니다.
                 return True
             if point in right_points:
-                print("양옆 충돌")
+                print("오른쪽 벽 충돌")
                 bullet.angle = 180 - bullet_angle  # 총알의 이동 방향을 반대로 설정합니다.
                 return True
             if point in top_points:
-                print("위 아래 충돌")
+                print("위쪽 벽 충돌")
                 bullet.angle = -bullet_angle  # 총알의 이동 방향을 반대로 설정합니다.
                 return True
             if point in bottom_points:
-                print("위 아래 충돌")
+                print("아래쪽 벽 충돌")
                 bullet.angle = -bullet_angle  # 총알의 이동 방향을 반대로 설정합니다.
                 return True
             
